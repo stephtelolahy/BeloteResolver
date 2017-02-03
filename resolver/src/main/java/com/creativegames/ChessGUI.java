@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.IllegalComponentStateException;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -19,6 +20,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
@@ -34,11 +36,15 @@ public class ChessGUI {
 
     private static final int GUI_BORDER = 5;
     private static final int CHESS_BORDER = 8;
-    private static final int CARD_WIDTH = 44;
-    private static final int CARD_HEIGHT = 64;
     private static final Color BACKGROUND_COLOR = new Color(15, 128, 18);
 
-    private static final String COLORS[] = {"♥", "♠", "♦", "♣"};
+    private static final String CARD_COLORS[] = {"♥", "♠", "♦", "♣"};
+    private static final String CARD_NAMES[] = {"7", "8", "9", "10", "J", "Q", "K", "A"};
+    private static final int CARD_WIDTH = 44;
+    private static final int CARD_HEIGHT = 64;
+
+    private static final String A_RANKING[] = {"J", "9", "A", "10", "K", "Q", "8", "7"};
+    private static final String NA_RANKING[] = {"A", "10", "K", "Q", "J", "9", "8", "7"};
 
     private JPanel chessBoard;
     private final JPanel gui = new JPanel(new BorderLayout(3, 3));
@@ -64,7 +70,19 @@ public class ChessGUI {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                setupNewGame();
+
+                String input = (String) JOptionPane.showInputDialog(null, "Choose color now...",
+                        "The Choice are ", JOptionPane.QUESTION_MESSAGE, null, // Use
+                        // default
+                        // icon
+                        CARD_COLORS, // Array of choices
+                        CARD_COLORS[1]); // Initial choice
+
+                //If a string was returned, say so.
+                if ((input != null) && (input.length() > 0)) {
+                    setupNewGame(input);
+                    return;
+                }
             }
         };
         tools.add(newGameAction);
@@ -149,15 +167,31 @@ public class ChessGUI {
     /**
      * Initializes the icons of the initial chess board piece places
      */
-    private final void setupNewGame() {
-        message.setText("Make your move!");
+    private final void setupNewGame(String color) {
+        message.setText("Game is " + color + ". Play your card!");
         // set up pieces
         for (int ii = 0; ii < 4; ii++) {
-            chessBoardLabels[ii].setText(COLORS[ii] + " x8");
+            chessBoardLabels[ii].setText(CARD_COLORS[ii] + " x8");
             for (int jj = 0; jj < 8; jj++) {
-                chessBoardButtons[ii][jj].setIcon(new ImageIcon(chessPieceImages[ii][jj]));
+                if (CARD_COLORS[ii].equals(color)) {
+                    chessBoardButtons[ii][jj].setIcon(new ImageIcon((getImageForCard(CARD_COLORS[ii], A_RANKING[jj]))));
+                } else {
+                    chessBoardButtons[ii][jj].setIcon(new ImageIcon((getImageForCard(CARD_COLORS[ii], NA_RANKING[jj]))));
+                }
+                chessBoardButtons[ii][jj].setEnabled(true);
             }
         }
+    }
+
+    private Image getImageForCard(String color, String name) {
+        for (int ii = 0; ii < 4; ii++) {
+            for (int jj = 0; jj < 8; jj++) {
+                if (CARD_COLORS[ii].equals(color) && CARD_NAMES[jj].equals(name)) {
+                    return chessPieceImages[ii][jj];
+                }
+            }
+        }
+        throw new IllegalComponentStateException("Card not found color:" + color + "name:" + name);
     }
 
     public static void main(String[] args) {
