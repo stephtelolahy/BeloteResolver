@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Belote.iml" filepath="$PROJECT_DIR$/Belote.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BeloteResolver.iml" filepath="$PROJECT_DIR$/BeloteResolver.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/resolver/resolver.iml" filepath="$PROJECT_DIR$/resolver/resolver.iml" />
     </modules>

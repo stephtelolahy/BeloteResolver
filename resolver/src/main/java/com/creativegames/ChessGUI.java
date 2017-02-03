@@ -2,8 +2,6 @@ package com.creativegames;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -34,12 +32,20 @@ import javax.swing.border.LineBorder;
  */
 public class ChessGUI {
 
-    private final JPanel gui = new JPanel(new BorderLayout(3, 3));
-    private JButton[][] chessBoardButtons = new JButton[8][8];
-    private Image[][] chessPieceImages = new Image[4][8];
+    private static final int GUI_BORDER = 5;
+    private static final int CHESS_BORDER = 8;
+    private static final int CARD_WIDTH = 44;
+    private static final int CARD_HEIGHT = 64;
+    private static final Color BACKGROUND_COLOR = new Color(15, 128, 18);
+
+    private static final String COLORS[] = {"♥", "♠", "♦", "♣"};
+
     private JPanel chessBoard;
-    private final JLabel message = new JLabel("Chess Champ is ready to play!");
-    private static final String COLS = "ABCDEFGH";
+    private final JPanel gui = new JPanel(new BorderLayout(3, 3));
+    private final JButton[][] chessBoardButtons = new JButton[4][8];
+    private final Image[][] chessPieceImages = new Image[4][8];
+    private final JLabel[] chessBoardLabels = new JLabel[4];
+    private final JLabel message = new JLabel("Belote is ready to play!");
 
     ChessGUI() {
         initializeGui();
@@ -50,7 +56,7 @@ public class ChessGUI {
         createImages();
 
         // set up the main GUI
-        gui.setBorder(new EmptyBorder(5, 5, 5, 5));
+        gui.setBorder(new EmptyBorder(GUI_BORDER, GUI_BORDER, GUI_BORDER, GUI_BORDER));
         JToolBar tools = new JToolBar();
         tools.setFloatable(false);
         gui.add(tools, BorderLayout.PAGE_START);
@@ -62,55 +68,22 @@ public class ChessGUI {
             }
         };
         tools.add(newGameAction);
-        tools.add(new JButton("Save")); // TODO - add functionality!
-        tools.add(new JButton("Restore")); // TODO - add functionality!
         tools.addSeparator();
-        tools.add(new JButton("Resign")); // TODO - add functionality!
+        tools.add(new JButton("Restore")); // TODO - add functionality!
         tools.addSeparator();
         tools.add(message);
 
         gui.add(new JLabel("?"), BorderLayout.LINE_START);
 
-        chessBoard = new JPanel(new GridLayout(0, 9)) {
-
-            /**
-             * Override the preferred size to return the largest it can, in
-             * a square shape.  Must (must, must) be added to a GridBagLayout
-             * as the only component (it uses the parent as a guide to size)
-             * with no GridBagConstaint (so it is centered).
-             */
-            @Override
-            public final Dimension getPreferredSize() {
-                Dimension d = super.getPreferredSize();
-                Dimension prefSize = null;
-                Component c = getParent();
-                if (c == null) {
-                    prefSize = new Dimension(
-                            (int)d.getWidth(),(int)d.getHeight());
-                } else if (c!=null &&
-                        c.getWidth()>d.getWidth() &&
-                        c.getHeight()>d.getHeight()) {
-                    prefSize = c.getSize();
-                } else {
-                    prefSize = d;
-                }
-                int w = (int) prefSize.getWidth();
-                int h = (int) prefSize.getHeight();
-                // the smaller of the two sizes
-                int s = (w>h ? h : w);
-                s-= 40; // add margin
-                return new Dimension(s,s);
-            }
-        };
+        chessBoard = new JPanel(new GridLayout(0, 9));
         chessBoard.setBorder(new CompoundBorder(
-                new EmptyBorder(8,8,8,8),
+                new EmptyBorder(CHESS_BORDER, CHESS_BORDER, CHESS_BORDER, CHESS_BORDER),
                 new LineBorder(Color.BLACK)
         ));
-        // Set the BG to be ochre
-        Color ochre = new Color(204,119,34);
-        chessBoard.setBackground(ochre);
+
+        chessBoard.setBackground(BACKGROUND_COLOR);
         JPanel boardConstrain = new JPanel(new GridBagLayout());
-        boardConstrain.setBackground(ochre);
+        boardConstrain.setBackground(BACKGROUND_COLOR);
         boardConstrain.add(chessBoard);
         gui.add(boardConstrain);
 
@@ -122,12 +95,10 @@ public class ChessGUI {
                 b.setMargin(buttonMargin);
                 // our chess pieces are 64x64 px in size, so we'll
                 // 'fill this in' using a transparent icon..
-                ImageIcon icon = new ImageIcon(new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB));
+                ImageIcon icon = new ImageIcon(new BufferedImage(CARD_WIDTH, CARD_HEIGHT, BufferedImage.TYPE_INT_ARGB));
                 b.setIcon(icon);
-                b.addActionListener(new ActionListener()
-                {
-                    public void actionPerformed(ActionEvent e)
-                    {
+                b.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
                         b.setEnabled(false);
                     }
                 });
@@ -135,23 +106,19 @@ public class ChessGUI {
             }
         }
 
+        // create the chess board titles
+        for (int ii = 0; ii < chessBoardLabels.length; ii++) {
+            chessBoardLabels[ii] = new JLabel("", SwingConstants.CENTER);
+        }
+
         /*
          * fill the chess board
          */
-        chessBoard.add(new JLabel(""));
-        // fill the top row
-        for (int ii = 0; ii < 8; ii++) {
-            chessBoard.add(
-                    new JLabel(COLS.substring(ii, ii + 1),
-                            SwingConstants.CENTER));
-        }
-        // fill the black non-pawn piece row
-        for (int ii = 0; ii < 8; ii++) {
+        for (int ii = 0; ii < 4; ii++) {
             for (int jj = 0; jj < 8; jj++) {
                 switch (jj) {
                     case 0:
-                        chessBoard.add(new JLabel("" + (9-(ii + 1)),
-                                SwingConstants.CENTER));
+                        chessBoard.add(chessBoardLabels[ii]);
                     default:
                         chessBoard.add(chessBoardButtons[ii][jj]);
                 }
@@ -186,6 +153,7 @@ public class ChessGUI {
         message.setText("Make your move!");
         // set up pieces
         for (int ii = 0; ii < 4; ii++) {
+            chessBoardLabels[ii].setText(COLORS[ii] + " x8");
             for (int jj = 0; jj < 8; jj++) {
                 chessBoardButtons[ii][jj].setIcon(new ImageIcon(chessPieceImages[ii][jj]));
             }
@@ -199,11 +167,11 @@ public class ChessGUI {
             public void run() {
                 ChessGUI cg = new ChessGUI();
 
-                JFrame f = new JFrame("ChessChamp");
+                JFrame f = new JFrame("Belote Resolver");
                 f.add(cg.getGui());
                 // Ensures JVM closes after frame(s) closed and
                 // all non-daemon threads are finished
-                f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 // See http://stackoverflow.com/a/7143398/418556 for demo.
                 f.setLocationByPlatform(true);
 
