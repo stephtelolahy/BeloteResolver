@@ -9,6 +9,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 
@@ -34,18 +35,11 @@ import javax.swing.border.LineBorder;
 public class ChessGUI {
 
     private final JPanel gui = new JPanel(new BorderLayout(3, 3));
-    private JButton[][] chessBoardSquares = new JButton[8][8];
-    private Image[][] chessPieceImages = new Image[2][6];
+    private JButton[][] chessBoardButtons = new JButton[8][8];
+    private Image[][] chessPieceImages = new Image[4][8];
     private JPanel chessBoard;
-    private final JLabel message = new JLabel(
-            "Chess Champ is ready to play!");
+    private final JLabel message = new JLabel("Chess Champ is ready to play!");
     private static final String COLS = "ABCDEFGH";
-    public static final int QUEEN = 0, KING = 1,
-            ROOK = 2, KNIGHT = 3, BISHOP = 4, PAWN = 5;
-    public static final int[] STARTING_ROW = {
-            ROOK, KNIGHT, BISHOP, KING, QUEEN, BISHOP, KNIGHT, ROOK
-    };
-    public static final int BLACK = 0, WHITE = 1;
 
     ChessGUI() {
         initializeGui();
@@ -104,6 +98,7 @@ public class ChessGUI {
                 int h = (int) prefSize.getHeight();
                 // the smaller of the two sizes
                 int s = (w>h ? h : w);
+                s-= 40; // add margin
                 return new Dimension(s,s);
             }
         };
@@ -121,23 +116,22 @@ public class ChessGUI {
 
         // create the chess board squares
         Insets buttonMargin = new Insets(0, 0, 0, 0);
-        for (int ii = 0; ii < chessBoardSquares.length; ii++) {
-            for (int jj = 0; jj < chessBoardSquares[ii].length; jj++) {
-                JButton b = new JButton();
+        for (int ii = 0; ii < chessBoardButtons.length; ii++) {
+            for (int jj = 0; jj < chessBoardButtons[ii].length; jj++) {
+                final JButton b = new JButton();
                 b.setMargin(buttonMargin);
                 // our chess pieces are 64x64 px in size, so we'll
                 // 'fill this in' using a transparent icon..
-                ImageIcon icon = new ImageIcon(
-                        new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB));
+                ImageIcon icon = new ImageIcon(new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB));
                 b.setIcon(icon);
-                if ((jj % 2 == 1 && ii % 2 == 1)
-                        //) {
-                        || (jj % 2 == 0 && ii % 2 == 0)) {
-                    b.setBackground(Color.WHITE);
-                } else {
-                    b.setBackground(Color.BLACK);
-                }
-                chessBoardSquares[jj][ii] = b;
+                b.addActionListener(new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        b.setEnabled(false);
+                    }
+                });
+                chessBoardButtons[ii][jj] = b;
             }
         }
 
@@ -159,7 +153,7 @@ public class ChessGUI {
                         chessBoard.add(new JLabel("" + (9-(ii + 1)),
                                 SwingConstants.CENTER));
                     default:
-                        chessBoard.add(chessBoardSquares[jj][ii]);
+                        chessBoard.add(chessBoardButtons[ii][jj]);
                 }
             }
         }
@@ -171,12 +165,12 @@ public class ChessGUI {
 
     private final void createImages() {
         try {
-            URL url = new URL("http://i.stack.imgur.com/memI0.png");
+            // Image from Storage in Firebase App friendlychat-cec4b
+            URL url = new URL("https://firebasestorage.googleapis.com/v0/b/friendlychat-cec4b.appspot.com/o/cardTheme0.png?alt=media&token=d9ae67d2-63dd-406b-8473-1be6b0814808");
             BufferedImage bi = ImageIO.read(url);
-            for (int ii = 0; ii < 2; ii++) {
-                for (int jj = 0; jj < 6; jj++) {
-                    chessPieceImages[ii][jj] = bi.getSubimage(
-                            jj * 64, ii * 64, 64, 64);
+            for (int ii = 0; ii < 4; ii++) {
+                for (int jj = 0; jj < 8; jj++) {
+                    chessPieceImages[ii][jj] = bi.getSubimage(jj * 44, ii * 64, 44, 64);
                 }
             }
         } catch (Exception e) {
@@ -190,23 +184,11 @@ public class ChessGUI {
      */
     private final void setupNewGame() {
         message.setText("Make your move!");
-        // set up the black pieces
-        for (int ii = 0; ii < STARTING_ROW.length; ii++) {
-            chessBoardSquares[ii][0].setIcon(new ImageIcon(
-                    chessPieceImages[BLACK][STARTING_ROW[ii]]));
-        }
-        for (int ii = 0; ii < STARTING_ROW.length; ii++) {
-            chessBoardSquares[ii][1].setIcon(new ImageIcon(
-                    chessPieceImages[BLACK][PAWN]));
-        }
-        // set up the white pieces
-        for (int ii = 0; ii < STARTING_ROW.length; ii++) {
-            chessBoardSquares[ii][6].setIcon(new ImageIcon(
-                    chessPieceImages[WHITE][PAWN]));
-        }
-        for (int ii = 0; ii < STARTING_ROW.length; ii++) {
-            chessBoardSquares[ii][7].setIcon(new ImageIcon(
-                    chessPieceImages[WHITE][STARTING_ROW[ii]]));
+        // set up pieces
+        for (int ii = 0; ii < 4; ii++) {
+            for (int jj = 0; jj < 8; jj++) {
+                chessBoardButtons[ii][jj].setIcon(new ImageIcon(chessPieceImages[ii][jj]));
+            }
         }
     }
 
