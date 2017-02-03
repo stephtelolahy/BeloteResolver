@@ -166,7 +166,7 @@ public class ChessGUI {
     private final void createImages() {
         try {
             // Image from Storage in Firebase App friendlychat-cec4b
-            URL url = new URL("https://firebasestorage.googleapis.com/v0/b/friendlychat-cec4b.appspot.com/o/cardTheme0.png?alt=media&token=d9ae67d2-63dd-406b-8473-1be6b0814808");
+            URL url = new URL("https://firebasestorage.googleapis.com/v0/b/friendlychat-cec4b.appspot.com/o/cardTheme_alpha.png?alt=media&token=2fc255ed-a7ca-4a7a-b38f-e45b82d3e8af");
             BufferedImage bi = ImageIO.read(url);
             for (int ii = 0; ii < 4; ii++) {
                 for (int jj = 0; jj < 8; jj++) {
